@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Send, Terminal, Copy, Check, AlertCircle, Clock, Zap, FastForward } from 'lucide-react';
 
 const WORKBENCH_PRESETS = [
@@ -470,8 +472,8 @@ export default function Playground({ apiKey }) {
             )}
 
             {activeTab === 'rendered' && responseContent && (
-              <div className="flat-rendered-output">
-                {responseContent}
+              <div className="flat-rendered-output md-output">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{responseContent}</ReactMarkdown>
               </div>
             )}
 
@@ -537,8 +539,16 @@ export default function Playground({ apiKey }) {
               </div>
 
               <div className="ar-compare-body">
-                {arSim.text}
-                {arSim.status === 'running' && <span className="ar-cursor">▌</span>}
+                {arSim.status === 'done' ? (
+                  <div className="md-output">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{arSim.text}</ReactMarkdown>
+                  </div>
+                ) : (
+                  <>
+                    {arSim.text}
+                    <span className="ar-cursor">▌</span>
+                  </>
+                )}
               </div>
 
               <div className="ar-compare-verdict font-mono text-xs">

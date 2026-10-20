@@ -1155,6 +1155,111 @@
   white-space: pre-wrap;
 }
 
+/* Markdown-rendered LLM output */
+.md-output {
+  white-space: normal;
+}
+
+.md-output > :first-child { margin-top: 0; }
+.md-output > :last-child { margin-bottom: 0; }
+
+.md-output p {
+  margin: 0 0 10px;
+}
+
+.md-output h1, .md-output h2, .md-output h3, .md-output h4 {
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+  margin: 18px 0 8px;
+}
+
+.md-output h1 { font-size: 1.25rem; }
+.md-output h2 { font-size: 1.12rem; }
+.md-output h3 { font-size: 1rem; }
+.md-output h4 { font-size: 0.92rem; }
+
+.md-output strong {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.md-output ul, .md-output ol {
+  margin: 0 0 10px;
+  padding-left: 22px;
+}
+
+.md-output li {
+  margin: 3px 0;
+}
+
+.md-output li > p {
+  margin: 0;
+}
+
+.md-output code {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-hairline);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+.md-output pre {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  overflow-x: auto;
+  margin: 0 0 10px;
+}
+
+.md-output pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.md-output blockquote {
+  border-left: 3px solid var(--border-subtle);
+  margin: 0 0 10px;
+  padding: 2px 0 2px 12px;
+  color: var(--text-secondary);
+}
+
+.md-output a {
+  color: var(--accent-blue);
+}
+
+.md-output hr {
+  border: none;
+  border-top: 1px solid var(--border-hairline);
+  margin: 14px 0;
+}
+
+.md-output table {
+  border-collapse: collapse;
+  margin: 0 0 10px;
+  font-size: 0.85rem;
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.md-output th, .md-output td {
+  border: 1px solid var(--border-hairline);
+  padding: 6px 10px;
+  text-align: left;
+}
+
+.md-output th {
+  background: var(--bg-subtle);
+  font-weight: 700;
+}
+
 /* Engine prewarm status line under the run button */
 .warmup-status {
   margin-top: 10px;
