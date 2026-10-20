@@ -1,0 +1,382 @@
+/* ==========================================================================
+   UI/UX PRO MAX DESIGN SYSTEM: DEVELOPER WORKBENCH / BENTO GRID
+   Aesthetic: Clean Modern Light (Default) / Obsidian Dark (Toggleable)
+   Reference: Stripe / Apple / Linear Clean Editorial Style
+   ========================================================================== */
+
+:root {
+  /* Surface colors (Clean Modern Light Mode - Default) */
+  --bg-canvas: #f8fafc;
+  --bg-subtle: #f1f5f9;
+  --bg-panel: #ffffff;
+  --bg-panel-elevated: #ffffff;
+  --bg-input: #ffffff;
+  --bg-header: rgba(255, 255, 255, 0.94);
+
+  /* Hairline Borders */
+  --border-hairline: #e2e8f0;
+  --border-subtle: #cbd5e1;
+  --border-active: #94a3b8;
+  --border-emerald: #10b981;
+  --border-blue: #3b82f6;
+  --border-amber: #f59e0b;
+
+  /* Semantic Accents (Crisp, High-Contrast) */
+  --accent-emerald: #059669;       /* Deep rich emerald */
+  --accent-emerald-subtle: #ecfdf5;
+  --accent-blue: #2563eb;          /* Vibrant royal blue */
+  --accent-blue-subtle: #eff6ff;
+  --accent-purple: #7c3aed;
+  --accent-purple-subtle: #f5f3ff;
+  --accent-amber: #d97706;
+  --accent-amber-subtle: #fffbeb;
+  --accent-rose: #dc2626;
+  --accent-rose-subtle: #fef2f2;
+
+  /* Typography Colors (Superior Readability) */
+  --text-primary: #0f172a;         /* Slate 900 */
+  --text-secondary: #475569;       /* Slate 600 */
+  --text-muted: #64748b;           /* Slate 500 */
+  --text-code: #0f172a;
+
+  /* Shadows (Soft editorial depth) */
+  --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 10px 15px -3px rgba(0, 0, 0, 0.03);
+  --card-shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+  --dot-grid-color: rgba(0, 0, 0, 0.04);
+  --scrollbar-thumb: #cbd5e1;
+
+  /* Fonts */
+  --font-sans: 'IBM Plex Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', SFMono-Regular, Consolas, monospace;
+
+  /* Radii (Modern, Crisp, Sharp) */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+
+  /* Grid & Spacing */
+  --container-max: 1240px;
+}
+
+[data-theme="dark"] {
+  /* Surface colors (Deep Obsidian & Slate) */
+  --bg-canvas: #08090d;
+  --bg-subtle: #0d1118;
+  --bg-panel: #121722;
+  --bg-panel-elevated: #181f2e;
+  --bg-input: #0a0e16;
+  --bg-header: rgba(8, 9, 13, 0.92);
+
+  /* Hairline Borders */
+  --border-hairline: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.12);
+  --border-active: rgba(255, 255, 255, 0.22);
+  --border-emerald: rgba(16, 185, 129, 0.4);
+  --border-blue: rgba(59, 130, 246, 0.4);
+  --border-amber: rgba(245, 158, 11, 0.4);
+
+  /* Semantic Accents */
+  --accent-emerald: #10b981;
+  --accent-emerald-subtle: rgba(16, 185, 129, 0.1);
+  --accent-blue: #3b82f6;
+  --accent-blue-subtle: rgba(59, 130, 246, 0.1);
+  --accent-purple: #8b5cf6;
+  --accent-purple-subtle: rgba(139, 92, 246, 0.1);
+  --accent-amber: #f59e0b;
+  --accent-amber-subtle: rgba(245, 158, 11, 0.1);
+  --accent-rose: #ef4444;
+  --accent-rose-subtle: rgba(239, 68, 68, 0.1);
+
+  /* Typography Colors */
+  --text-primary: #f0f6fc;
+  --text-secondary: #8b949e;
+  --text-muted: #586069;
+  --text-code: #e6edf3;
+
+  --card-shadow: none;
+  --card-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --dot-grid-color: rgba(255, 255, 255, 0.07);
+  --scrollbar-thumb: #21262d;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  overflow-x: hidden;
+  /* Micro Engineering Dot Grid */
+  background-image: radial-gradient(var(--dot-grid-color) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-position: -19px -19px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-canvas);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-active);
+}
+
+/* ==========================================================================
+   Bento Grid & Surfaces
+   ========================================================================== */
+.bento-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  box-shadow: var(--card-shadow);
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.bento-card:hover {
+  border-color: var(--border-subtle);
+  box-shadow: var(--card-shadow-hover);
+}
+
+/* High-Density Card Header */
+.card-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border-hairline);
+  background: var(--bg-subtle);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+}
+
+/* Engineering Badges & Tags */
+.eng-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  line-height: 1.4;
+}
+
+.eng-badge-emerald {
+  background: var(--accent-emerald-subtle);
+  color: var(--accent-emerald);
+  border-color: rgba(5, 150, 105, 0.25);
+}
+
+.eng-badge-blue {
+  background: var(--accent-blue-subtle);
+  color: var(--accent-blue);
+  border-color: rgba(37, 99, 235, 0.25);
+}
+
+.eng-badge-purple {
+  background: var(--accent-purple-subtle);
+  color: var(--accent-purple);
+  border-color: rgba(124, 58, 237, 0.25);
+}
+
+.eng-badge-amber {
+  background: var(--accent-amber-subtle);
+  color: var(--accent-amber);
+  border-color: rgba(217, 119, 6, 0.25);
+}
+
+.eng-badge-rose {
+  background: var(--accent-rose-subtle);
+  color: var(--accent-rose);
+  border-color: rgba(220, 38, 38, 0.25);
+}
+
+.eng-badge-neutral {
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  border-color: var(--border-hairline);
+}
+
+/* Status Indicator Dot */
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.active {
+  background-color: var(--accent-emerald);
+  box-shadow: 0 0 8px rgba(5, 150, 105, 0.5);
+}
+
+.status-dot.warning {
+  background-color: var(--accent-amber);
+  box-shadow: 0 0 8px rgba(217, 119, 6, 0.5);
+}
+
+/* Buttons */
+.eng-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.eng-btn-primary {
+  background: var(--accent-emerald);
+  color: #ffffff;
+  border-color: var(--accent-emerald);
+}
+
+.eng-btn-primary:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 2px 10px rgba(5, 150, 105, 0.25);
+}
+
+.eng-btn-secondary {
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+}
+
+.eng-btn-secondary:hover {
+  background: var(--bg-canvas);
+  border-color: var(--border-active);
+}
+
+.eng-btn-outline {
+  background: var(--bg-panel);
+  color: var(--text-secondary);
+  border-color: var(--border-hairline);
+}
+
+.eng-btn-outline:hover {
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+  background: var(--bg-subtle);
+}
+
+.eng-btn-xs {
+  padding: 4px 8px;
+  font-size: 0.74rem;
+}
+
+.eng-btn-sm {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+/* Monospace Code Container */
+.code-box {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--text-code);
+  overflow-x: auto;
+  line-height: 1.6;
+}
+
+/* Token Box Display */
+.token-node {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 8px;
+  margin: 2px;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.token-node.noise {
+  background: var(--accent-rose-subtle);
+  color: var(--accent-rose);
+  border-color: rgba(220, 38, 38, 0.3);
+  font-style: italic;
+}
+
+.token-node.partial {
+  background: var(--accent-amber-subtle);
+  color: var(--accent-amber);
+  border-color: rgba(217, 119, 6, 0.3);
+}
+
+.token-node.resolved {
+  background: var(--accent-emerald-subtle);
+  color: var(--accent-emerald);
+  border-color: rgba(5, 150, 105, 0.3);
+  font-weight: 600;
+}
+
+/* Grid System */
+.bento-grid-hero {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.bento-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.bento-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.bento-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 960px) {
+  .bento-grid-hero, .bento-grid-3, .bento-grid-2, .bento-grid-4 {
+    grid-template-columns: 1fr;
+  }
+}
