@@ -12,9 +12,9 @@ export default function Header({
   onToggleTheme
 }) {
   const tabs = [
-    { id: 'race', num: '1', label: '속도 레이스', icon: Zap, hint: '타자기 vs 초고속 화가 속도 체감' },
-    { id: 'scrubber', num: '2', label: '디노이징 랩', icon: Sliders, hint: '3단계 마법 복원 원리' },
-    { id: 'playground', num: '3', label: '라이브 테스트', icon: Play, hint: 'Mercury-3 API 직접 질문' },
+    { id: 'playground', num: '1', label: '라이브 테스트', icon: Play, hint: 'Mercury-3 API 직접 질문 + 기존 LLM 비교' },
+    { id: 'race', num: '2', label: '속도 레이스', icon: Zap, hint: '타자기 vs 초고속 화가 속도 체감' },
+    { id: 'scrubber', num: '3', label: '디노이징 랩', icon: Sliders, hint: '3단계 마법 복원 원리' },
     { id: 'architecture', num: '4', label: '원리 & 스펙', icon: Layers, hint: '시야 차이 & 비용 비교' }
   ];
 

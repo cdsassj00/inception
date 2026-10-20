@@ -123,13 +123,13 @@ export default function RaceSimulator() {
     <section id="race" className="wb-section">
       {/* Clean Editorial Section Header (No Clutter) */}
       <div className="section-narrative">
-        <div className="section-kicker font-mono text-emerald">01 / SPEED BENCHMARK ARENA</div>
+        <div className="section-kicker font-mono text-emerald">02 / 속도 레이스</div>
         <h2 className="section-title">
-          속도 레이스: 순차 타자기 vs 3스텝 화가
+          속도 레이스: 타자기 vs 화가, 누가 먼저 끝낼까?
         </h2>
         <p className="section-subtitle">
-          기존 GPT는 1글자마다 1번씩 계산해야 하므로 단어가 많을수록 시간이 비례해서 늘어납니다. 
-          반면 인셉션은 문장 전체를 펼쳐놓고 <strong>단 3번의 붓질(병렬 디노이징)</strong>로 끝냅니다.
+          기존 AI는 한 글자 쓸 때마다 한 번씩 생각해야 해서 글이 길수록 오래 걸려요.
+          인셉션은 문장 전체를 한꺼번에 그려서 <strong>붓질 3번이면 끝</strong>납니다. 버튼을 눌러 직접 확인해보세요.
         </p>
       </div>
 
@@ -178,8 +178,8 @@ export default function RaceSimulator() {
         <div className={`flat-track-col ar-track ${arFinished ? 'finished' : ''}`}>
           <div className="track-col-header">
             <div>
-              <div className="track-model-name text-amber font-mono">🖨️ 기존 GPT (자기회귀 AR)</div>
-              <div className="track-model-meta font-mono">순차 생성 $O(N)$ · 글자 수만큼 시간 증가</div>
+              <div className="track-model-name text-amber font-mono">🖨️ 기존 AI (타자기 방식)</div>
+              <div className="track-model-meta font-mono">한 글자씩 차례로 · 글자 수만큼 기다림</div>
             </div>
             <div className="track-live-timer font-mono text-amber">
               <Clock size={14} />
@@ -208,8 +208,8 @@ export default function RaceSimulator() {
           </div>
 
           <div className="track-col-footer font-mono text-xs text-muted">
-            <span>상태: {arFinished ? '✅ 완료' : isRacing ? '글자별 순차 대기 중...' : '대기'}</span>
-            <span>연산: {selectedSample.tokenCount}회 순차 호출</span>
+            <span>상태: {arFinished ? '✅ 완료' : isRacing ? '한 글자씩 찍는 중...' : '대기'}</span>
+            <span>생각 횟수: {selectedSample.tokenCount}번</span>
           </div>
         </div>
 
@@ -217,8 +217,8 @@ export default function RaceSimulator() {
         <div className={`flat-track-col diff-track ${diffFinished ? 'finished' : ''}`}>
           <div className="track-col-header">
             <div>
-              <div className="track-model-name text-emerald font-mono">🎨 인셉션 Mercury-3 (확산 dLLM)</div>
-              <div className="track-model-meta font-mono">병렬 디노이징 $O(1)$ · 고정 3스텝 번개 생성</div>
+              <div className="track-model-name text-emerald font-mono">🎨 인셉션 (화가 방식)</div>
+              <div className="track-model-meta font-mono">문장 전체를 동시에 · 붓질 3번이면 완성</div>
             </div>
             <div className="track-live-timer font-mono text-emerald">
               <Clock size={14} />
@@ -253,8 +253,8 @@ export default function RaceSimulator() {
           </div>
 
           <div className="track-col-footer font-mono text-xs text-muted">
-            <span>상태: {diffFinished ? '⚡ 3스텝 초고속 완료' : isRacing ? '병렬 디노이징 중...' : '대기'}</span>
-            <span className="text-emerald">연산: 단 3단계 고정</span>
+            <span>상태: {diffFinished ? '⚡ 완성!' : isRacing ? '붓질하는 중...' : '대기'}</span>
+            <span className="text-emerald">생각 횟수: 딱 3번</span>
           </div>
         </div>
       </div>

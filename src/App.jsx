@@ -14,7 +14,7 @@ import { DEFAULT_API_KEY } from './config';
 import './App.css';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('race'); // 'race' | 'scrubber' | 'playground' | 'architecture'
+  const [activeTab, setActiveTab] = useState('playground'); // 'playground' | 'race' | 'scrubber' | 'architecture'
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('STUDIO_THEME') || 'light';
   });
@@ -42,9 +42,9 @@ export default function App() {
       // Don't trigger if user is typing in an input or textarea
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
 
-      if (e.key === '1') setActiveTab('race');
-      if (e.key === '2') setActiveTab('scrubber');
-      if (e.key === '3') setActiveTab('playground');
+      if (e.key === '1') setActiveTab('playground');
+      if (e.key === '2') setActiveTab('race');
+      if (e.key === '3') setActiveTab('scrubber');
       if (e.key === '4') setActiveTab('architecture');
       if (e.key === 'p' || e.key === 'P') setIsKeynoteOpen(true);
     };
@@ -83,7 +83,7 @@ export default function App() {
       {/* Main Studio Viewport */}
       <main className="wb-main-canvas">
         {/* Compact 1-line Studio Context Banner */}
-        <Hero activeTab={activeTab} onSelectTab={handleSelectTab} />
+        <Hero />
 
         {/* Studio Stage: Only the Selected Stage is Displayed with High Focus */}
         <div className="studio-stage-container">

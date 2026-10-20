@@ -1155,6 +1155,54 @@
   white-space: pre-wrap;
 }
 
+/* "What if a classic LLM typed this?" comparison panel */
+.ar-compare-panel {
+  background: var(--accent-amber-subtle);
+  border: 1px solid rgba(217, 119, 6, 0.3);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ar-compare-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ar-compare-title {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.ar-compare-title strong {
+  color: var(--text-primary);
+}
+
+.ar-compare-body {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-xs);
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-height: 140px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+.ar-compare-verdict {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .flat-telemetry-row {
   display: flex;
   justify-content: space-between;

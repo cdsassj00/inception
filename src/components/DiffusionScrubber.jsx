@@ -100,14 +100,14 @@ export default function DiffusionScrubber() {
     <section id="scrubber" className="wb-section">
       {/* Section Header */}
       <div className="section-narrative">
-        <div className="section-kicker font-mono text-emerald">02 / INTERACTIVE DENOISING LAB</div>
+        <div className="section-kicker font-mono text-emerald">03 / 붓질 체험 랩</div>
         <h2 className="section-title">
-          디노이징 스크러버: 3단계 붓질로 문장이 완성되는 과정
+          흐릿한 글자가 3번 만에 선명해지는 과정을 직접 돌려보세요
         </h2>
         <p className="section-subtitle">
-          미드저니가 노이즈에서 점차 선명한 그림을 뽑아내듯, 
-          인셉션은 <strong>알 수 없는 글자 잡음에서 단 3번의 붓질로 완벽한 문장</strong>을 뽑아냅니다. 
-          슬라이더를 움직여 각 단계별 단어 복원 확률을 체험해보세요.
+          AI 그림 도구가 뿌연 화면에서 점점 선명한 그림을 만들어내는 것처럼,
+          인셉션도 <strong>알아볼 수 없는 글자 잡음에서 붓질 3번 만에 완성된 문장</strong>을 만들어요.
+          아래 슬라이더를 움직여 단계마다 단어가 살아나는 모습을 확인해보세요.
         </p>
       </div>
 
@@ -255,7 +255,8 @@ export default function DiffusionScrubber() {
             </div>
 
             <p className="inspector-footnote text-secondary text-xs">
-              💡 인셉션은 양방향 어텐션(Bidirectional Attention)으로 앞뒤 문맥을 동시에 보고 복원 확률을 끌어올립니다.
+              💡 인셉션은 앞 단어와 뒤 단어를 <strong>동시에</strong> 보면서 고치기 때문에(양방향 어텐션),
+              단계가 지날수록 "이 단어가 맞다"는 확신이 빠르게 올라갑니다.
             </p>
           </aside>
         )}

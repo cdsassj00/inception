@@ -8,13 +8,14 @@ export default function ArchitectureComparison() {
     <section id="architecture" className="wb-section">
       {/* Section Narrative */}
       <div className="section-narrative">
-        <div className="section-kicker font-mono text-blue">03 / ARCHITECTURAL COMPARISON</div>
+        <div className="section-kicker font-mono text-blue">04 / 원리 & 스펙 (심화)</div>
         <h2 className="section-title">
-          아키텍처 대조: 눈가리개 시야(AR) vs 독수리 시야(dLLM)
+          원리 들여다보기: 눈가리개 시야 vs 독수리 시야
         </h2>
         <p className="section-subtitle">
-          기존 GPT는 뒤에 올 단어를 볼 수 없도록 <strong>눈가리개를 찬 경주마</strong>처럼 앞만 보며 작문합니다. 
-          반면 인셉션은 문장의 처음과 끝을 동시에 내려다보는 <strong>독수리 시야(양방향 어텐션)</strong>로 앞뒤 맥락을 통째로 엮어냅니다.
+          기존 AI는 <strong>눈가리개를 찬 경주마</strong>처럼 앞에 쓴 글만 보며 다음 글자를 짐작합니다.
+          인셉션은 문장의 처음과 끝을 한눈에 내려다보는 <strong>독수리 시야</strong>로 앞뒤 맥락을 통째로 엮어냅니다.
+          여기부터는 개발자·연구자를 위한 심화 내용입니다.
         </p>
       </div>
 
