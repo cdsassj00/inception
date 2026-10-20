@@ -36,9 +36,9 @@ export default function VercelDeployModal({ isOpen, onClose }) {
         <div className="card-header-bar">
           <div className="flex-row items-center gap-2">
             <UploadCloud className="text-emerald" size={15} />
-            <span className="font-mono font-bold text-white">VERCEL CLI DEPLOYMENT GUIDE</span>
+            <span className="font-mono font-bold text-strong">VERCEL CLI DEPLOYMENT GUIDE</span>
           </div>
-          <button className="eng-btn eng-btn-outline eng-btn-xs" onClick={onClose}>
+          <button className="eng-btn eng-btn-outline eng-btn-xs" onClick={onClose} aria-label="닫기">
             <X size={14} />
           </button>
         </div>
@@ -53,7 +53,7 @@ export default function VercelDeployModal({ isOpen, onClose }) {
             {steps.map((st, i) => (
               <div key={i} className="deploy-step-box mb-2">
                 <div className="flex-row items-center justify-between mb-1">
-                  <span className="font-mono text-xs font-bold text-white">{st.title}</span>
+                  <span className="font-mono text-xs font-bold text-strong">{st.title}</span>
                   <button 
                     className="eng-btn eng-btn-outline eng-btn-xs font-mono"
                     onClick={() => copyText(st.cmd, i)}

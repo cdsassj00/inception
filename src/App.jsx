@@ -10,9 +10,8 @@ import Footer from './components/Footer';
 import LectureDeckModal from './components/LectureDeckModal';
 import VercelDeployModal from './components/VercelDeployModal';
 import ApiKeyModal from './components/ApiKeyModal';
+import { DEFAULT_API_KEY } from './config';
 import './App.css';
-
-const DEFAULT_KEY = 'sk_1460488f4edc9f3230a7eecd506da5d7';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('race'); // 'race' | 'scrubber' | 'playground' | 'architecture'
@@ -20,7 +19,7 @@ export default function App() {
     return localStorage.getItem('STUDIO_THEME') || 'light';
   });
   const [apiKey, setApiKey] = useState(() => {
-    return localStorage.getItem('INCEPTION_API_KEY') || DEFAULT_KEY;
+    return localStorage.getItem('INCEPTION_API_KEY') || DEFAULT_API_KEY;
   });
 
   const [isKeynoteOpen, setIsKeynoteOpen] = useState(false);
@@ -54,6 +53,14 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Switching stages while scrolled deep leaves the viewport mid-page
+  const handleSelectTab = (tabId) => {
+    setActiveTab(tabId);
+    if (window.scrollY > 280) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   const handleSaveApiKey = (newKey) => {
     setApiKey(newKey);
     localStorage.setItem('INCEPTION_API_KEY', newKey);
@@ -62,9 +69,9 @@ export default function App() {
   return (
     <div className="wb-app-shell">
       {/* Precision Command Header with 4 Studio Tabs & Theme Toggle */}
-      <Header 
+      <Header
         activeTab={activeTab}
-        onSelectTab={setActiveTab}
+        onSelectTab={handleSelectTab}
         onOpenKeynote={() => setIsKeynoteOpen(true)}
         onOpenDeploy={() => setIsDeployOpen(true)}
         onOpenApiKey={() => setIsApiKeyOpen(true)}
@@ -76,7 +83,7 @@ export default function App() {
       {/* Main Studio Viewport */}
       <main className="wb-main-canvas">
         {/* Compact 1-line Studio Context Banner */}
-        <Hero activeTab={activeTab} onSelectTab={setActiveTab} />
+        <Hero activeTab={activeTab} onSelectTab={handleSelectTab} />
 
         {/* Studio Stage: Only the Selected Stage is Displayed with High Focus */}
         <div className="studio-stage-container">

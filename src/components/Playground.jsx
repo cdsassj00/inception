@@ -149,6 +149,8 @@ export default function Playground({ apiKey }) {
                 if (isDiffusing) {
                   stepCount++;
                   stepList.push({ step: stepCount, text: delta, time: Math.round(performance.now() - startTime) });
+                  // In diffusing mode each chunk is the full refined text, not an append
+                  fullText = delta;
                   setResponseContent(delta);
                   setDenoiseSteps([...stepList]);
                   setActiveStepView(stepCount);
@@ -164,14 +166,15 @@ export default function Playground({ apiKey }) {
 
       const totalDuration = Math.round(performance.now() - startTime);
       const estTokens = Math.round(fullText.length / 3);
+      const outTokens = finalUsage?.completion_tokens || estTokens;
 
       setMetrics({
         timeMs: totalDuration,
         ttftMs: firstTokenTime,
         promptTokens: finalUsage?.prompt_tokens || Math.round(prompt.length / 3),
-        completionTokens: finalUsage?.completion_tokens || estTokens,
+        completionTokens: outTokens,
         reasoningTokens: finalUsage?.completion_tokens_details?.reasoning_tokens || 0,
-        tps: Math.round(estTokens / (totalDuration / 1000)) || 280
+        tps: totalDuration > 0 ? Math.round(outTokens / (totalDuration / 1000)) : 0
       });
 
     } catch (err) {

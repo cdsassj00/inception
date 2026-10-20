@@ -10,7 +10,7 @@ export default function Footer({ onOpenDeploy }) {
             <div className="wb-brand-icon">
               <Cpu size={16} className="text-emerald" />
             </div>
-            <span className="font-mono font-bold text-white">INCEPTION MERCURY dLLM WORKBENCH</span>
+            <span className="font-mono font-bold text-strong">INCEPTION MERCURY dLLM WORKBENCH</span>
           </div>
           <p className="text-xs text-muted mt-2 leading-relaxed">
             이산 확산(Discrete Diffusion) 기반 언어 모델의 병렬 디노이징 원리와 
@@ -20,7 +20,7 @@ export default function Footer({ onOpenDeploy }) {
 
         <div className="wb-footer-links">
           <div className="wb-footer-col">
-            <span className="font-mono text-xs text-white">OFFICIAL SPECS</span>
+            <span className="font-mono text-xs text-strong font-bold">OFFICIAL SPECS</span>
             <a href="https://docs.inceptionlabs.ai" target="_blank" rel="noreferrer" className="wb-footer-link">
               <BookOpen size={12} /> 공식 API 문서
             </a>
@@ -33,7 +33,7 @@ export default function Footer({ onOpenDeploy }) {
           </div>
 
           <div className="wb-footer-col">
-            <span className="font-mono text-xs text-white">DEPLOYMENT</span>
+            <span className="font-mono text-xs text-strong font-bold">DEPLOYMENT</span>
             <button className="wb-footer-btn font-mono" onClick={onOpenDeploy}>
               <UploadCloud size={12} /> Vercel CLI 배포 가이드
             </button>

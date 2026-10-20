@@ -35,13 +35,15 @@ export default function Header({
         </div>
 
         {/* Center: 4 Studio Navigation Tabs */}
-        <nav className="studio-tab-nav" aria-label="Studio Modes">
+        <nav className="studio-tab-nav" role="tablist" aria-label="Studio Modes">
           {tabs.map((t) => {
             const Icon = t.icon;
             const isActive = activeTab === t.id;
             return (
               <button
                 key={t.id}
+                role="tab"
+                aria-selected={isActive}
                 className={`studio-tab-btn ${isActive ? 'active' : ''}`}
                 onClick={() => onSelectTab(t.id)}
                 title={`단축키 [${t.num}] 키로 이동 (${t.hint})`}
@@ -93,10 +95,11 @@ export default function Header({
             <span className="d-none-mobile">배포</span>
           </button>
 
-          <button 
+          <button
             className="eng-btn eng-btn-outline eng-btn-sm icon-only"
             onClick={onOpenApiKey}
             title="API 키 관리"
+            aria-label="API 키 관리"
           >
             <Key size={13} className={apiKey ? "text-emerald" : "text-muted"} />
           </button>

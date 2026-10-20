@@ -185,13 +185,13 @@ export default function LectureDeckModal({ isOpen, onClose }) {
         <div className="keynote-deck-header card-header-bar">
           <div className="flex-row items-center gap-2">
             <Presentation size={15} className="text-emerald" />
-            <span className="font-mono font-bold text-white">INCEPTION MERCURY KEYNOTE DECK</span>
+            <span className="font-mono font-bold text-strong">INCEPTION MERCURY KEYNOTE DECK</span>
             <span className="eng-badge eng-badge-emerald font-mono">{current.index}</span>
           </div>
 
           <div className="flex-row items-center gap-3">
             <span className="font-mono text-xs text-muted d-none-mobile">KEYBOARD: [←] [→] SLIDES / [ESC] EXIT</span>
-            <button className="eng-btn eng-btn-outline eng-btn-xs" onClick={onClose}>
+            <button className="eng-btn eng-btn-outline eng-btn-xs" onClick={onClose} aria-label="닫기">
               <X size={14} />
             </button>
           </div>
