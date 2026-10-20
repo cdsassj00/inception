@@ -1155,6 +1155,16 @@
   white-space: pre-wrap;
 }
 
+/* Engine prewarm status line under the run button */
+.warmup-status {
+  margin-top: 10px;
+  min-height: 18px;
+}
+
+.warmup-status .flex-row {
+  display: inline-flex;
+}
+
 /* "What if a classic LLM typed this?" comparison panel */
 .ar-compare-panel {
   background: var(--accent-amber-subtle);

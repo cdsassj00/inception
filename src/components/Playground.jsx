@@ -23,6 +23,11 @@ const WORKBENCH_PRESETS = [
 // Typical autoregressive chat LLM feels like ~80 chars/sec to the reader
 const AR_SIM_CHARS_PER_SEC = 80;
 
+const API_URL = 'https://api.inceptionlabs.ai/v1/chat/completions';
+
+// Survives tab switches (component remounts) so we only prewarm once per page load
+let enginePrewarmed = false;
+
 export default function Playground({ apiKey }) {
   const [prompt, setPrompt] = useState(WORKBENCH_PRESETS[0].prompt);
   const [model, setModel] = useState('mercury-3');
@@ -42,11 +47,50 @@ export default function Playground({ apiKey }) {
   const [metrics, setMetrics] = useState({
     timeMs: 0,
     ttftMs: 0,
+    genMs: 0,
     promptTokens: 0,
     completionTokens: 0,
     reasoningTokens: 0,
     tps: 0
   });
+
+  // Pre-warm the model once so cold-start never pollutes the measured speed
+  const [warmup, setWarmup] = useState('idle'); // idle | warming | ready | failed
+  useEffect(() => {
+    if (enginePrewarmed) {
+      setWarmup('ready');
+      return;
+    }
+    if (!apiKey) {
+      setWarmup('failed');
+      return;
+    }
+    let cancelled = false;
+    setWarmup('warming');
+    fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey.trim()}`
+      },
+      body: JSON.stringify({
+        model: 'mercury-3',
+        messages: [{ role: 'user', content: 'hi' }],
+        max_completion_tokens: 1
+      })
+    }).then(res => {
+      if (cancelled) return;
+      if (res.ok) {
+        enginePrewarmed = true;
+        setWarmup('ready');
+      } else {
+        setWarmup('failed');
+      }
+    }).catch(() => {
+      if (!cancelled) setWarmup('failed');
+    });
+    return () => { cancelled = true; };
+  }, [apiKey]);
 
   const abortRef = useRef(null);
 
@@ -104,7 +148,7 @@ export default function Playground({ apiKey }) {
     setDenoiseSteps([]);
     setActiveStepView(0);
     setErrorMsg('');
-    setMetrics({ timeMs: 0, ttftMs: 0, promptTokens: 0, completionTokens: 0, reasoningTokens: 0, tps: 0 });
+    setMetrics({ timeMs: 0, ttftMs: 0, genMs: 0, promptTokens: 0, completionTokens: 0, reasoningTokens: 0, tps: 0 });
     stopArSim();
     setArSim({ status: 'idle', text: '', fullText: '', timeMs: 0 });
 
@@ -212,14 +256,18 @@ export default function Playground({ apiKey }) {
       const totalDuration = Math.round(performance.now() - startTime);
       const estTokens = Math.round(fullText.length / 3);
       const outTokens = finalUsage?.completion_tokens || estTokens;
+      // Pure generation time: everything after the first byte arrived.
+      // Connection/cold-start (TTFT) is reported separately so it never skews tok/s.
+      const genDuration = firstTokenTime > 0 ? Math.max(1, totalDuration - firstTokenTime) : totalDuration;
 
       setMetrics({
         timeMs: totalDuration,
         ttftMs: firstTokenTime,
+        genMs: genDuration,
         promptTokens: finalUsage?.prompt_tokens || Math.round(prompt.length / 3),
         completionTokens: outTokens,
         reasoningTokens: finalUsage?.completion_tokens_details?.reasoning_tokens || 0,
-        tps: totalDuration > 0 ? Math.round(outTokens / (totalDuration / 1000)) : 0
+        tps: genDuration > 0 ? Math.round(outTokens / (genDuration / 1000)) : 0
       });
 
       // Right after Mercury finishes, replay the same answer at classic LLM speed
@@ -338,12 +386,33 @@ export default function Playground({ apiKey }) {
               <button
                 className="eng-btn eng-btn-primary"
                 onClick={handleSend}
-                disabled={isLoading || !prompt.trim()}
+                disabled={isLoading || !prompt.trim() || warmup === 'warming'}
               >
                 <Send size={14} />
-                <span>{isLoading ? '추론 중...' : '실행 (Run)'}</span>
+                <span>{isLoading ? '답변 만드는 중...' : warmup === 'warming' ? '예열 중...' : '실행 (Run)'}</span>
               </button>
             </div>
+          </div>
+
+          {/* Engine prewarm status: run only starts after the model is awake */}
+          <div className="warmup-status font-mono text-xs">
+            {warmup === 'warming' && (
+              <span className="text-amber flex-row items-center gap-2">
+                <span className="status-dot warning"></span>
+                엔진 예열 중... 속도를 정확히 재기 위해 모델을 미리 깨우고 있어요
+              </span>
+            )}
+            {warmup === 'ready' && (
+              <span className="text-emerald flex-row items-center gap-2">
+                <span className="status-dot active"></span>
+                준비 완료 — 지금부터 측정되는 속도는 시동 시간이 빠진 순수 생성 속도예요
+              </span>
+            )}
+            {warmup === 'failed' && (
+              <span className="text-muted">
+                예열을 건너뛰었어요 — 첫 실행에는 시동 시간이 포함될 수 있어요
+              </span>
+            )}
           </div>
         </div>
 
@@ -395,7 +464,7 @@ export default function Playground({ apiKey }) {
               <div className="flat-empty-stage">
                 <div className="flat-spinner"></div>
                 <span className="font-mono text-xs text-emerald mt-3">
-                  Mercury-3 dLLM Discrete Diffusion 포워드 패스 실행 중...
+                  모델과 연결하는 중... 첫 반응이 오면 바로 그려집니다
                 </span>
               </div>
             )}
@@ -475,12 +544,12 @@ export default function Playground({ apiKey }) {
               <div className="ar-compare-verdict font-mono text-xs">
                 {arSim.status === 'running' ? (
                   <span className="text-amber">
-                    ⏳ 기존 방식은 아직 타이핑 중... (인셉션은 {(metrics.timeMs / 1000).toFixed(1)}초 전에 이미 끝!)
+                    ⏳ 기존 방식은 아직 타이핑 중... (인셉션은 생성에 {(metrics.genMs / 1000).toFixed(1)}초면 충분했어요!)
                   </span>
                 ) : (
                   <span className="text-emerald">
-                    <Zap size={12} style={{ verticalAlign: '-2px' }} /> 인셉션 {(metrics.timeMs / 1000).toFixed(1)}초 vs 기존 방식 {(arSim.timeMs / 1000).toFixed(1)}초
-                    {metrics.timeMs > 0 && ` — 약 ${Math.max(1, (arSim.timeMs / metrics.timeMs)).toFixed(1)}배 빨랐습니다`}
+                    <Zap size={12} style={{ verticalAlign: '-2px' }} /> 인셉션 {(metrics.genMs / 1000).toFixed(1)}초 vs 기존 방식 {(arSim.timeMs / 1000).toFixed(1)}초
+                    {metrics.genMs > 0 && ` — 약 ${Math.max(1, (arSim.timeMs / metrics.genMs)).toFixed(1)}배 빨랐어요 (시동 시간 제외, 순수 생성 기준)`}
                   </span>
                 )}
               </div>
@@ -490,12 +559,12 @@ export default function Playground({ apiKey }) {
           {/* Minimal Telemetry Line (Borderless) */}
           <div className="flat-telemetry-row font-mono text-xs">
             <div className="tel-item">
-              <span className="text-muted">소요:</span>
-              <span className="text-emerald font-bold">{metrics.timeMs}ms</span>
+              <span className="text-muted">시동(연결):</span>
+              <span>{metrics.ttftMs}ms</span>
             </div>
             <div className="tel-item">
-              <span className="text-muted">TTFT:</span>
-              <span>{metrics.ttftMs}ms</span>
+              <span className="text-muted">생성:</span>
+              <span className="text-emerald font-bold">{metrics.genMs}ms</span>
             </div>
             <div className="tel-item">
               <span className="text-muted">추론:</span>
