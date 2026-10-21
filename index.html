@@ -1,11 +1,25 @@
 <!doctype html>
-<html lang="ko" class="dark">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230a0d14'/><path d='M25 50h50M50 25v50M32 32l36 36M68 32L32 68' stroke='%2310b981' stroke-width='6' stroke-linecap='round'/></svg>" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Inception Mercury dLLM | Discrete Diffusion Architecture Workbench</title>
     <meta name="description" content="Inception Mercury 이산 확산 언어 모델(dLLM)과 자기회귀(AR) 모델의 구조적 차이, 병렬 디노이징 메커니즘, 1M 컨텍스트 벤치마크를 직접 조작하며 설명하는 전문가용 강의 워크벤치" />
+    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#08090d" media="(prefers-color-scheme: dark)" />
+    <meta property="og:title" content="Inception Mercury dLLM Studio" />
+    <meta property="og:description" content="이산 확산(dLLM) vs 자기회귀(AR) — 속도 레이스, 디노이징 랩, 라이브 API 워크벤치" />
+    <meta property="og:type" content="website" />
+    <!-- Apply saved theme before first paint to avoid a light/dark flash -->
+    <script>
+      try {
+        document.documentElement.setAttribute(
+          'data-theme',
+          localStorage.getItem('STUDIO_THEME') || 'light'
+        );
+      } catch (e) {}
+    </script>
     <!-- Fonts: IBM Plex Sans, JetBrains Mono, Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

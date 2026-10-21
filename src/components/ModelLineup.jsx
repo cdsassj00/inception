@@ -135,7 +135,7 @@ curl https://api.inceptionlabs.ai/v1/chat/completions \\
               <div className="card-header-bar">
                 <div className="flex-row items-center gap-2">
                   <IconComp size={15} className="text-emerald" />
-                  <span className="font-mono font-bold text-white">{m.name}</span>
+                  <span className="font-mono font-bold text-strong">{m.name}</span>
                 </div>
                 <span className={`eng-badge ${m.tierColor}`}>{m.tier}</span>
               </div>

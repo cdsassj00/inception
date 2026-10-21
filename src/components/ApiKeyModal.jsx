@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { X, Key, Check, RotateCcw, Eye, EyeOff, ShieldCheck } from 'lucide-react';
-
-const DEFAULT_KEY = 'sk_1460488f4edc9f3230a7eecd506da5d7';
+import { DEFAULT_API_KEY } from '../config';
 
 export default function ApiKeyModal({ isOpen, onClose, currentKey, onSaveKey }) {
   const [inputKey, setInputKey] = useState(currentKey);
@@ -20,8 +19,8 @@ export default function ApiKeyModal({ isOpen, onClose, currentKey, onSaveKey }) 
   };
 
   const handleReset = () => {
-    setInputKey(DEFAULT_KEY);
-    onSaveKey(DEFAULT_KEY);
+    setInputKey(DEFAULT_API_KEY);
+    onSaveKey(DEFAULT_API_KEY);
   };
 
   return (
@@ -30,9 +29,9 @@ export default function ApiKeyModal({ isOpen, onClose, currentKey, onSaveKey }) 
         <div className="card-header-bar">
           <div className="flex-row items-center gap-2">
             <Key className="text-emerald" size={15} />
-            <span className="font-mono font-bold text-white">INCEPTION API CREDENTIALS</span>
+            <span className="font-mono font-bold text-strong">INCEPTION API CREDENTIALS</span>
           </div>
-          <button className="eng-btn eng-btn-outline eng-btn-xs" onClick={onClose}>
+          <button className="eng-btn eng-btn-outline eng-btn-xs" onClick={onClose} aria-label="닫기">
             <X size={14} />
           </button>
         </div>

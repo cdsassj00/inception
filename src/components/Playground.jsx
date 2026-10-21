@@ -1,24 +1,34 @@
-import React, { useState, useRef } from 'react';
-import { Send, Terminal, Copy, Check, AlertCircle } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Send, Terminal, Copy, Check, AlertCircle, Clock, Zap, FastForward } from 'lucide-react';
 
 const WORKBENCH_PRESETS = [
   {
-    title: "이산 확산 vs AR 핵심 원리",
-    prompt: "이산 확산 모델(Discrete Diffusion LLM)이 기존 GPT-4o 같은 자기회귀 언어 모델과 비교해 어떤 수학적/구조적 메커니즘으로 5배 이상 빠른 속도를 내는지 3가지 핵심 요인으로 분석해줘."
+    title: "인셉션이 빠른 이유",
+    prompt: "인셉션의 확산 방식 AI가 기존 AI보다 왜 5배 이상 빠른지, 일상적인 비유를 들어 쉽게 설명해줘."
   },
   {
-    title: "실시간 음성 및 도구 호출 에이전트",
-    prompt: "Mercury-3 모델이 음성 대화 에이전트(Voice Agent)나 멀티턴 도구 호출(Tool Calling) 워크플로우에서 대기 시간을 획기적으로 줄여주는 이유를 설명해줘."
+    title: "타자기 vs 화가 비유",
+    prompt: "기존 AI를 '한 글자씩 찍는 타자기', 확산 AI를 '밑그림부터 그리는 화가'에 비유해서 초등학생도 이해할 수 있게 설명해줘."
   },
   {
-    title: "병합 정렬(Merge Sort) 파이썬 코드",
-    prompt: "파이썬으로 효율적인 병합 정렬(Merge Sort) 함수를 작성하고, 시간 복잡도와 공간 복잡도를 주석과 함께 상세히 분석해줘."
+    title: "파이썬 정렬 코드",
+    prompt: "파이썬으로 리스트를 정렬하는 간단한 함수를 작성하고, 각 줄이 무슨 일을 하는지 주석으로 쉽게 설명해줘."
   },
   {
-    title: "양자역학의 중첩과 얽힘 요약",
-    prompt: "양자역학의 중첩(Superposition)과 얽힘(Entanglement) 개념을 일반인도 직관적으로 이해할 수 있게 비유를 들어 2줄로 요약해줘."
+    title: "양자역학 2줄 요약",
+    prompt: "양자역학의 중첩과 얽힘 개념을 비유를 들어 누구나 이해할 수 있게 2줄로 요약해줘."
   }
 ];
+
+// Typical autoregressive chat LLM feels like ~80 chars/sec to the reader
+const AR_SIM_CHARS_PER_SEC = 80;
+
+const API_URL = 'https://api.inceptionlabs.ai/v1/chat/completions';
+
+// Survives tab switches (component remounts) so we only prewarm once per page load
+let enginePrewarmed = false;
 
 export default function Playground({ apiKey }) {
   const [prompt, setPrompt] = useState(WORKBENCH_PRESETS[0].prompt);
@@ -39,13 +49,92 @@ export default function Playground({ apiKey }) {
   const [metrics, setMetrics] = useState({
     timeMs: 0,
     ttftMs: 0,
+    genMs: 0,
     promptTokens: 0,
     completionTokens: 0,
     reasoningTokens: 0,
     tps: 0
   });
 
+  // Pre-warm the model once so cold-start never pollutes the measured speed
+  const [warmup, setWarmup] = useState('idle'); // idle | warming | ready | failed
+  useEffect(() => {
+    if (enginePrewarmed) {
+      setWarmup('ready');
+      return;
+    }
+    if (!apiKey) {
+      setWarmup('failed');
+      return;
+    }
+    let cancelled = false;
+    setWarmup('warming');
+    fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey.trim()}`
+      },
+      body: JSON.stringify({
+        model: 'mercury-3',
+        messages: [{ role: 'user', content: 'hi' }],
+        max_completion_tokens: 1
+      })
+    }).then(res => {
+      if (cancelled) return;
+      if (res.ok) {
+        enginePrewarmed = true;
+        setWarmup('ready');
+      } else {
+        setWarmup('failed');
+      }
+    }).catch(() => {
+      if (!cancelled) setWarmup('failed');
+    });
+    return () => { cancelled = true; };
+  }, [apiKey]);
+
   const abortRef = useRef(null);
+
+  // "What if the same answer came from a classic one-token-at-a-time LLM?" replay
+  const [arSim, setArSim] = useState({ status: 'idle', text: '', fullText: '', timeMs: 0 });
+  const arSimTimer = useRef(null);
+
+  const stopArSim = () => {
+    if (arSimTimer.current) clearInterval(arSimTimer.current);
+    arSimTimer.current = null;
+  };
+
+  useEffect(() => stopArSim, []);
+
+  const startArSim = (text) => {
+    stopArSim();
+    if (!text) return;
+    const startT = performance.now();
+    const charsPerTick = Math.max(1, Math.round(AR_SIM_CHARS_PER_SEC / 20));
+    let i = 0;
+    setArSim({ status: 'running', text: '', fullText: text, timeMs: 0 });
+    arSimTimer.current = setInterval(() => {
+      i += charsPerTick;
+      const elapsed = Math.round(performance.now() - startT);
+      if (i >= text.length) {
+        stopArSim();
+        setArSim({ status: 'done', text, fullText: text, timeMs: elapsed });
+      } else {
+        setArSim({ status: 'running', text: text.slice(0, i), fullText: text, timeMs: elapsed });
+      }
+    }, 50);
+  };
+
+  const skipArSim = () => {
+    setArSim(prev => {
+      if (prev.status !== 'running') return prev;
+      // Estimate the full duration it would have taken
+      const estMs = Math.round((prev.fullText.length / AR_SIM_CHARS_PER_SEC) * 1000);
+      return { status: 'done', text: prev.fullText, fullText: prev.fullText, timeMs: estMs };
+    });
+    stopArSim();
+  };
 
   const handleSend = async () => {
     if (!prompt.trim() || isLoading) return;
@@ -61,7 +150,9 @@ export default function Playground({ apiKey }) {
     setDenoiseSteps([]);
     setActiveStepView(0);
     setErrorMsg('');
-    setMetrics({ timeMs: 0, ttftMs: 0, promptTokens: 0, completionTokens: 0, reasoningTokens: 0, tps: 0 });
+    setMetrics({ timeMs: 0, ttftMs: 0, genMs: 0, promptTokens: 0, completionTokens: 0, reasoningTokens: 0, tps: 0 });
+    stopArSim();
+    setArSim({ status: 'idle', text: '', fullText: '', timeMs: 0 });
 
     const startTime = performance.now();
     let firstTokenTime = 0;
@@ -149,6 +240,8 @@ export default function Playground({ apiKey }) {
                 if (isDiffusing) {
                   stepCount++;
                   stepList.push({ step: stepCount, text: delta, time: Math.round(performance.now() - startTime) });
+                  // In diffusing mode each chunk is the full refined text, not an append
+                  fullText = delta;
                   setResponseContent(delta);
                   setDenoiseSteps([...stepList]);
                   setActiveStepView(stepCount);
@@ -164,15 +257,23 @@ export default function Playground({ apiKey }) {
 
       const totalDuration = Math.round(performance.now() - startTime);
       const estTokens = Math.round(fullText.length / 3);
+      const outTokens = finalUsage?.completion_tokens || estTokens;
+      // Pure generation time: everything after the first byte arrived.
+      // Connection/cold-start (TTFT) is reported separately so it never skews tok/s.
+      const genDuration = firstTokenTime > 0 ? Math.max(1, totalDuration - firstTokenTime) : totalDuration;
 
       setMetrics({
         timeMs: totalDuration,
         ttftMs: firstTokenTime,
+        genMs: genDuration,
         promptTokens: finalUsage?.prompt_tokens || Math.round(prompt.length / 3),
-        completionTokens: finalUsage?.completion_tokens || estTokens,
+        completionTokens: outTokens,
         reasoningTokens: finalUsage?.completion_tokens_details?.reasoning_tokens || 0,
-        tps: Math.round(estTokens / (totalDuration / 1000)) || 280
+        tps: genDuration > 0 ? Math.round(outTokens / (genDuration / 1000)) : 0
       });
+
+      // Right after Mercury finishes, replay the same answer at classic LLM speed
+      startArSim(fullText);
 
     } catch (err) {
       if (err.name !== 'AbortError') {
@@ -194,13 +295,13 @@ export default function Playground({ apiKey }) {
     <section id="playground" className="wb-section">
       {/* Section Narrative */}
       <div className="section-narrative">
-        <div className="section-kicker font-mono text-purple">04 / LIVE INFERENCE WORKBENCH</div>
+        <div className="section-kicker font-mono text-purple">01 / 직접 써보기 (LIVE TEST)</div>
         <h2 className="section-title">
-          Mercury-3 실시간 질문 & 초고속 답변 테스트
+          직접 질문해보세요 — 얼마나 빠른지 바로 느껴집니다
         </h2>
         <p className="section-subtitle">
-          기존 챗봇처럼 글자가 한 자씩 타이핑되기를 답답하게 기다릴 필요가 없습니다. 
-          아래 질문을 전송하면 <strong>초당 300단어가 넘는 번개 같은 속도로 답변이 한 번에 전달</strong>됩니다.
+          질문 버튼 하나 고르고 <strong>[실행]</strong>을 누르면 진짜 인셉션 AI가 답을 만들어요.
+          답이 끝나면 <strong>같은 답을 기존 AI 방식(한 글자씩)으로 받았다면 얼마나 걸렸을지</strong> 바로 아래에서 나란히 보여드립니다.
         </p>
       </div>
 
@@ -210,7 +311,7 @@ export default function Playground({ apiKey }) {
         <div className="flat-wb-col input-col">
           <div className="flat-config-row">
             <div className="cfg-item">
-              <label className="font-mono text-xs text-muted">MODEL</label>
+              <label className="font-mono text-xs text-muted">모델 선택</label>
               <select 
                 className="flat-select font-mono"
                 value={model}
@@ -224,23 +325,23 @@ export default function Playground({ apiKey }) {
             </div>
 
             <div className="cfg-item">
-              <label className="font-mono text-xs text-muted">STREAMING</label>
+              <label className="font-mono text-xs text-muted">답변 받는 방식</label>
               <select 
                 className="flat-select font-mono text-emerald"
                 value={streamMode}
                 onChange={(e) => setStreamMode(e.target.value)}
                 disabled={isLoading}
               >
-                <option value="diffusing">diffusing: true (확산 스트림)</option>
-                <option value="stream">stream: true (표준 스트림)</option>
-                <option value="sync">stream: false (단발 동기)</option>
+                <option value="diffusing">화가 방식 (diffusing — 추천)</option>
+                <option value="stream">타자기처럼 받기 (stream)</option>
+                <option value="sync">한 번에 받기 (동기)</option>
               </select>
             </div>
           </div>
 
           <div className="cfg-item mt-2">
             <div className="flex-row justify-between items-center mb-1">
-              <label className="font-mono text-xs text-muted">REASONING EFFORT</label>
+              <label className="font-mono text-xs text-muted">생각 깊이 (REASONING)</label>
               <span className="font-mono text-xs text-purple">{reasoningEffort}</span>
             </div>
             <div className="flat-pills-bar">
@@ -258,7 +359,7 @@ export default function Playground({ apiKey }) {
           </div>
 
           <div className="cfg-item mt-3">
-            <label className="font-mono text-xs text-muted mb-1 block">프리셋 질문 선택:</label>
+            <label className="font-mono text-xs text-muted mb-1 block">추천 질문 (누르면 자동 입력):</label>
             <div className="flat-presets-list">
               {WORKBENCH_PRESETS.map((p, idx) => (
                 <button
@@ -287,12 +388,33 @@ export default function Playground({ apiKey }) {
               <button
                 className="eng-btn eng-btn-primary"
                 onClick={handleSend}
-                disabled={isLoading || !prompt.trim()}
+                disabled={isLoading || !prompt.trim() || warmup === 'warming'}
               >
                 <Send size={14} />
-                <span>{isLoading ? '추론 중...' : '실행 (Run)'}</span>
+                <span>{isLoading ? '답변 만드는 중...' : warmup === 'warming' ? '예열 중...' : '실행 (Run)'}</span>
               </button>
             </div>
+          </div>
+
+          {/* Engine prewarm status: run only starts after the model is awake */}
+          <div className="warmup-status font-mono text-xs">
+            {warmup === 'warming' && (
+              <span className="text-amber flex-row items-center gap-2">
+                <span className="status-dot warning"></span>
+                엔진 예열 중... 속도를 정확히 재기 위해 모델을 미리 깨우고 있어요
+              </span>
+            )}
+            {warmup === 'ready' && (
+              <span className="text-emerald flex-row items-center gap-2">
+                <span className="status-dot active"></span>
+                준비 완료 — 지금부터 측정되는 속도는 시동 시간이 빠진 순수 생성 속도예요
+              </span>
+            )}
+            {warmup === 'failed' && (
+              <span className="text-muted">
+                예열을 건너뛰었어요 — 첫 실행에는 시동 시간이 포함될 수 있어요
+              </span>
+            )}
           </div>
         </div>
 
@@ -344,14 +466,14 @@ export default function Playground({ apiKey }) {
               <div className="flat-empty-stage">
                 <div className="flat-spinner"></div>
                 <span className="font-mono text-xs text-emerald mt-3">
-                  Mercury-3 dLLM Discrete Diffusion 포워드 패스 실행 중...
+                  모델과 연결하는 중... 첫 반응이 오면 바로 그려집니다
                 </span>
               </div>
             )}
 
             {activeTab === 'rendered' && responseContent && (
-              <div className="flat-rendered-output">
-                {responseContent}
+              <div className="flat-rendered-output md-output">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{responseContent}</ReactMarkdown>
               </div>
             )}
 
@@ -396,15 +518,63 @@ export default function Playground({ apiKey }) {
             )}
           </div>
 
+          {/* Intuitive side-by-side: what if a classic LLM typed the same answer? */}
+          {arSim.status !== 'idle' && (
+            <div className="ar-compare-panel">
+              <div className="ar-compare-head">
+                <span className="ar-compare-title">
+                  🖨️ 같은 답을 <strong>기존 AI 방식(한 글자씩)</strong>으로 받는다면? <span className="text-muted">(시뮬레이션)</span>
+                </span>
+                <div className="flex-row items-center gap-2">
+                  <span className="track-live-timer font-mono text-amber">
+                    <Clock size={13} />
+                    <span>{(arSim.timeMs / 1000).toFixed(1)}s</span>
+                  </span>
+                  {arSim.status === 'running' && (
+                    <button className="eng-btn eng-btn-outline eng-btn-xs" onClick={skipArSim}>
+                      <FastForward size={11} /> 건너뛰기
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="ar-compare-body">
+                {arSim.status === 'done' ? (
+                  <div className="md-output">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{arSim.text}</ReactMarkdown>
+                  </div>
+                ) : (
+                  <>
+                    {arSim.text}
+                    <span className="ar-cursor">▌</span>
+                  </>
+                )}
+              </div>
+
+              <div className="ar-compare-verdict font-mono text-xs">
+                {arSim.status === 'running' ? (
+                  <span className="text-amber">
+                    ⏳ 기존 방식은 아직 타이핑 중... (인셉션은 생성에 {(metrics.genMs / 1000).toFixed(1)}초면 충분했어요!)
+                  </span>
+                ) : (
+                  <span className="text-emerald">
+                    <Zap size={12} style={{ verticalAlign: '-2px' }} /> 인셉션 {(metrics.genMs / 1000).toFixed(1)}초 vs 기존 방식 {(arSim.timeMs / 1000).toFixed(1)}초
+                    {metrics.genMs > 0 && ` — 약 ${Math.max(1, (arSim.timeMs / metrics.genMs)).toFixed(1)}배 빨랐어요 (시동 시간 제외, 순수 생성 기준)`}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Minimal Telemetry Line (Borderless) */}
           <div className="flat-telemetry-row font-mono text-xs">
             <div className="tel-item">
-              <span className="text-muted">소요:</span>
-              <span className="text-emerald font-bold">{metrics.timeMs}ms</span>
+              <span className="text-muted">시동(연결):</span>
+              <span>{metrics.ttftMs}ms</span>
             </div>
             <div className="tel-item">
-              <span className="text-muted">TTFT:</span>
-              <span>{metrics.ttftMs}ms</span>
+              <span className="text-muted">생성:</span>
+              <span className="text-emerald font-bold">{metrics.genMs}ms</span>
             </div>
             <div className="tel-item">
               <span className="text-muted">추론:</span>
